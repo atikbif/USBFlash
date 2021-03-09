@@ -46,7 +46,7 @@ uint8_t at45_get_info(uint8_t dev_num, struct at_info *info) {
 uint8_t at45_read_page(uint8_t dev_num, uint16_t page_num, uint8_t *buf) {
 	if(page_num>4095) return 0;
 	static uint8_t tx_buf[8] = {0,0,0,0,0,0,0,0};
-	HAL_Delay(1);
+	//HAL_Delay(1);
 	tx_buf[0] = 0xD2;
 	tx_buf[1] = page_num >> 8;
 	tx_buf[2] = page_num & 0xFF;
@@ -64,7 +64,7 @@ uint8_t at45_read_page(uint8_t dev_num, uint16_t page_num, uint8_t *buf) {
 
 uint8_t at45_write_page(uint8_t dev_num, uint16_t page_num, uint8_t *buf) {
 	if(page_num>4095) return 0;
-	HAL_Delay(1);
+	//HAL_Delay(1);
 	static uint8_t tx_buf[4] = {0,0,0,0};
 	tx_buf[0] = 0x82;
 	tx_buf[1] = page_num >> 8;

@@ -25,6 +25,7 @@
 /* USER CODE BEGIN INCLUDE */
 
 #include "at45db081e.h"
+#include "device_state.h"
 
 /* USER CODE END INCLUDE */
 
@@ -34,6 +35,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
+extern struct dev_state state;
 
 /* USER CODE END PV */
 
@@ -65,7 +68,7 @@
   * @{
   */
 
-#define STORAGE_LUN_NBR                  1
+#define STORAGE_LUN_NBR                  2
 #define STORAGE_BLK_NBR                  2048
 #define STORAGE_BLK_SIZ                  512
 
@@ -109,7 +112,20 @@ const int8_t STORAGE_Inquirydata_FS[] = {/* 36 */
   0x00,
   0x00,
   'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
-  'P', 'r', 'o', 'd', 'u', 'c', 't', ' ', /* Product      : 16 Bytes */
+  'F', 'l', 'a', 's', 'h', ' ', '1', ' ', /* Product      : 16 Bytes */
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  '0', '.', '0' ,'1',                      /* Version      : 4 Bytes */
+  /* LUN 1 */
+  0x00,
+  0x80,
+  0x02,
+  0x02,
+  (STANDARD_INQUIRY_DATA_LEN - 5),
+  0x00,
+  0x00,
+  0x00,
+  'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
+  'F', 'l', 'a', 's', 'h', ' ', '2', ' ', /* Product      : 16 Bytes */
   ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
   '0', '.', '0' ,'1'                      /* Version      : 4 Bytes */
 };
@@ -180,7 +196,8 @@ USBD_StorageTypeDef USBD_Storage_Interface_fops_FS =
 int8_t STORAGE_Init_FS(uint8_t lun)
 {
   /* USER CODE BEGIN 2 */
-  return (USBD_OK);
+	if(state.insert==0) return (USBD_FAIL);
+    return (USBD_OK);
   /* USER CODE END 2 */
 }
 
@@ -194,9 +211,10 @@ int8_t STORAGE_Init_FS(uint8_t lun)
 int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_size)
 {
   /* USER CODE BEGIN 3 */
-  *block_num  = STORAGE_BLK_NBR;
-  *block_size = STORAGE_BLK_SIZ;
-  return (USBD_OK);
+	if(state.insert==0) return (USBD_FAIL);
+	*block_num  = STORAGE_BLK_NBR;
+	*block_size = STORAGE_BLK_SIZ;
+	return (USBD_OK);
   /* USER CODE END 3 */
 }
 
@@ -208,7 +226,8 @@ int8_t STORAGE_GetCapacity_FS(uint8_t lun, uint32_t *block_num, uint16_t *block_
 int8_t STORAGE_IsReady_FS(uint8_t lun)
 {
   /* USER CODE BEGIN 4 */
-  return (USBD_OK);
+	if(state.insert==0) return (USBD_FAIL);
+	return (USBD_OK);
   /* USER CODE END 4 */
 }
 
@@ -232,20 +251,21 @@ int8_t STORAGE_IsWriteProtected_FS(uint8_t lun)
 int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 6 */
+	if(state.insert==0) return (USBD_FAIL);
 	for(uint16_t i=0;i<blk_len;i++) {
-		if(at45_read_page(1, (blk_addr+i)*2, buf)==0) {
+		if(at45_read_page(lun+1, (blk_addr+i)*2, buf)==0) {
 			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 			return USBD_FAIL;
 		}
 		buf+=256;
-		if(at45_read_page(1, (blk_addr+i)*2+1, buf)==0) {
+		if(at45_read_page(lun+1, (blk_addr+i)*2+1, buf)==0) {
 			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 			return USBD_FAIL;
 		}
 		buf+=256;
 	}
-
-  return (USBD_OK);
+	state.usb_cmd = 1;
+	return (USBD_OK);
   /* USER CODE END 6 */
 }
 
@@ -257,19 +277,21 @@ int8_t STORAGE_Read_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t bl
 int8_t STORAGE_Write_FS(uint8_t lun, uint8_t *buf, uint32_t blk_addr, uint16_t blk_len)
 {
   /* USER CODE BEGIN 7 */
+	if(state.insert==0) return (USBD_FAIL);
 	for(uint16_t i=0;i<blk_len;i++) {
-		if(at45_write_page(1, (blk_addr+i)*2, buf)==0) {
+		if(at45_write_page(lun+1, (blk_addr+i)*2, buf)==0) {
 			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 			return USBD_FAIL;
 		}
 		buf+=256;
-		if(at45_write_page(1, (blk_addr+i)*2+1, buf)==0) {
+		if(at45_write_page(lun+1, (blk_addr+i)*2+1, buf)==0) {
 			HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
 			return USBD_FAIL;
 		}
 		buf+=256;
 	}
-  return (USBD_OK);
+	state.usb_cmd = 1;
+	return (USBD_OK);
   /* USER CODE END 7 */
 }
 

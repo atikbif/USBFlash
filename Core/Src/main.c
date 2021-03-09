@@ -28,6 +28,8 @@
 /* USER CODE BEGIN Includes */
 
 #include "at45db081e.h"
+#include "device_state.h"
+#include "led.h"
 
 /* USER CODE END Includes */
 
@@ -52,6 +54,9 @@
 
 /* USER CODE BEGIN PV */
 
+extern struct dev_state state;
+extern struct led_state sys_led_green;
+extern struct led_state sys_led_red;
 
 /* USER CODE END PV */
 
@@ -73,6 +78,8 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+
+	uint16_t led_tmr = 0;
 
   /* USER CODE END 1 */
 
@@ -99,14 +106,7 @@ int main(void)
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 
-  at45_set_page_256(0);
-  at45_set_page_256(1);
-
-  struct at_info info;
-  uint8_t res = at45_get_info(1,&info);
-  if(res) {
-	  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-  }
+  init_device();
 
 #if CLEAR_FLASH
 
@@ -116,12 +116,12 @@ int main(void)
   for(uint16_t p_num=0;p_num<4096;p_num++) {
 	  at45_write_page(1, p_num, (uint8_t*)tmp);
 	  at45_write_page(2, p_num, (uint8_t*)tmp);
+	  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
   }
 
 #endif
 
-
-  MX_USB_DEVICE_Init();
+  init_leds();
 
 
   /* USER CODE END 2 */
@@ -130,7 +130,29 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_Delay(100);
+	  check_insert();
+	  if(state.insert && state.dev_init==0) init_device();
+	  if((state.usb_init==0) && state.insert) {
+		  MX_USB_DEVICE_Init();
+		  state.usb_init = 1;
+	  }
+	  HAL_Delay(1);
+	  led_tmr++;
+	  if(state.insert==0) {	// не вставлена память (одна вспышка красным)
+		  if(led_tmr==100) sys_led_red.on_cmd = 1;
+	  }else {
+		  if(state.flash1_error || state.flash2_error) { // неисправность памяти (2 вспышки красным)
+			  if(led_tmr==100 || led_tmr==200) sys_led_red.on_cmd = 1;
+		  }else {
+			  if(led_tmr==100) sys_led_green.on_cmd = 1;	// вспышки зелёным раз в секунду
+			  if(state.usb_cmd) {	// вспышки при работе USB с памятью
+				  state.usb_cmd = 0;
+				  sys_led_green.on_cmd = 1;
+			  }
+		  }
+	  }
+	  if(led_tmr>=1000) led_tmr = 0;
+	  led_cycle(1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
