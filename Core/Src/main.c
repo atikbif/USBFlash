@@ -151,7 +151,10 @@ int main(void)
 			  }
 		  }
 	  }
-	  if(led_tmr>=1000) led_tmr = 0;
+	  if(led_tmr>=1000) {
+		  led_tmr = 0;
+		  if(state.insert && (state.flash1_error || state.flash2_error)) init_device();
+	  }
 	  led_cycle(1);
     /* USER CODE END WHILE */
 

@@ -39,8 +39,8 @@ void init_device() {
 			if(info.manufacturer_id != 0x1F) state.flash1_error = 1;
 			if(info.dev_id1 != 0x25) state.flash1_error = 1;
 			if(info.dev_id2 != 0x00) state.flash1_error = 1;
-			if(info.ext_dev_info1 != 0x01) state.flash1_error = 1;
-			if(info.ext_dev_info2 != 0x00) state.flash1_error = 1;
+			//if(info.ext_dev_info1 != 0x01) state.flash1_error = 1;
+			//if(info.ext_dev_info2 != 0x00) state.flash1_error = 1;
 		}
 		if(res && state.flash1_error==0) at45_set_page_256(1);
 		res = at45_get_info(2,&info);
@@ -48,8 +48,8 @@ void init_device() {
 			if(info.manufacturer_id != 0x1F) state.flash2_error = 1;
 			if(info.dev_id1 != 0x25) state.flash2_error = 1;
 			if(info.dev_id2 != 0x00) state.flash2_error = 1;
-			if(info.ext_dev_info1 != 0x01) state.flash2_error = 1;
-			if(info.ext_dev_info2 != 0x00) state.flash2_error = 1;
+			//if(info.ext_dev_info1 != 0x01) state.flash2_error = 1;
+			//if(info.ext_dev_info2 != 0x00) state.flash2_error = 1;
 		}
 		if(res&& state.flash2_error==0)	at45_set_page_256(2);
 		state.dev_init = 1;
