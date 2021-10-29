@@ -68,8 +68,8 @@ all: main-build
 main-build: USBFlash.elf secondary-outputs
 
 # Tool invocations
-USBFlash.elf: $(OBJS) $(USER_OBJS) D:\MTS\NEW_PLC\USBFlash\STM32\USBFlash\STM32L151CBTXA_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "USBFlash.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\MTS\NEW_PLC\USBFlash\STM32\USBFlash\STM32L151CBTXA_FLASH.ld" --specs=nosys.specs -Wl,-Map="USBFlash.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+USBFlash.elf: $(OBJS) $(USER_OBJS) STM32L151CBTXA_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "USBFlash.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"STM32L151CBTXA_FLASH.ld" --specs=nosys.specs -Wl,-Map="USBFlash.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
