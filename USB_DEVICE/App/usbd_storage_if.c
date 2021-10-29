@@ -68,7 +68,7 @@ extern struct dev_state state;
   * @{
   */
 
-#define STORAGE_LUN_NBR                  2
+#define STORAGE_LUN_NBR                  1
 #define STORAGE_BLK_NBR                  2048
 #define STORAGE_BLK_SIZ                  512
 
@@ -115,19 +115,6 @@ const int8_t STORAGE_Inquirydata_FS[] = {/* 36 */
   'F', 'l', 'a', 's', 'h', ' ', '1', ' ', /* Product      : 16 Bytes */
   ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
   '0', '.', '0' ,'1',                      /* Version      : 4 Bytes */
-  /* LUN 1 */
-  0x00,
-  0x80,
-  0x02,
-  0x02,
-  (STANDARD_INQUIRY_DATA_LEN - 5),
-  0x00,
-  0x00,
-  0x00,
-  'S', 'T', 'M', ' ', ' ', ' ', ' ', ' ', /* Manufacturer : 8 bytes */
-  'F', 'l', 'a', 's', 'h', ' ', '2', ' ', /* Product      : 16 Bytes */
-  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-  '0', '.', '0' ,'1'                      /* Version      : 4 Bytes */
 };
 /* USER CODE END INQUIRY_DATA_FS */
 

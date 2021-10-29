@@ -141,7 +141,7 @@ int main(void)
 	  if(state.insert==0) {	// не вставлена память (одна вспышка красным)
 		  if(led_tmr==100) sys_led_red.on_cmd = 1;
 	  }else {
-		  if(state.flash1_error || state.flash2_error) { // неисправность памяти (2 вспышки красным)
+		  if(state.flash1_error) { // неисправность памяти (2 вспышки красным)
 			  if(led_tmr==100 || led_tmr==200) sys_led_red.on_cmd = 1;
 		  }else {
 			  if(led_tmr==100) sys_led_green.on_cmd = 1;	// вспышки зелёным раз в секунду
